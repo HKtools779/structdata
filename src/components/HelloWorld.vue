@@ -31,7 +31,7 @@ export default defineComponent({
       if (rawdata) {
         const objdata = JSON.parse(rawdata);
         const simplifieddata = simplifyData(objdata);
-        outputdata.value = JSON.stringify(simplifieddata);
+        outputdata.value = deepstruct(simplifieddata, 0);
       } else {
         outputdata.value = '';
       }
@@ -56,6 +56,47 @@ export default defineComponent({
         return data;
       }
     };
+    const depthspace = (depth) => {
+      let ret = '';
+      for (let i = 0; i < depth; i++) {
+        ret += '    ';
+      }
+      return ret;
+    };
+    const deepstruct = (data, depth) => {
+      let ret = '';
+      if (data instanceof Array) {
+        ret += '[\n';
+        for (let i = 0; i < data.length; i++) {
+          ret += depthspace(depth + 1);
+          ret += deepstruct(data[i], depth + 1);
+          if (i != data.length - 1) {
+            ret += ',';
+          }
+          ret += '\n';
+        }
+        ret += depthspace(depth);
+        ret += ']';
+      } else if (data instanceof Object) {
+        ret += '{\n';
+        const keys = Object.keys(data);
+        for (let i = 0; i < keys.length; i++) {
+          ret += depthspace(depth + 1);
+          ret += `\"${keys[i]}\":`;
+          ret += deepstruct(data[keys[i]], depth + 1);
+          if (i != keys.length - 1) {
+            ret += ',';
+          }
+          ret += '\n';
+        }
+        ret += depthspace(depth);
+        ret += '}';
+      } else {
+        ret += data;
+      }
+      return ret;
+    };
+
     const cleardata = (e) => {
       e.target.style.backgroundColor = '#ffe600';
       setTimeout(() => {
@@ -95,7 +136,9 @@ export default defineComponent({
       readAndProcess,
       simplifyData,
       cleardata,
-      copydata
+      copydata,
+      depthspace,
+      deepstruct
     };
   }
 });
