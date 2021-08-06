@@ -91,6 +91,9 @@ export default defineComponent({
         }
         ret += depthspace(depth);
         ret += '}';
+      } else if (typeof data == 'string') {
+        console.log('String,', data);
+        ret += `\"${data}\"`;
       } else {
         ret += data;
       }
